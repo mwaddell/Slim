@@ -475,7 +475,11 @@ class Slim {
             ob_start();
             $customNotFoundHandler = $this->router->notFound();
             if ( is_callable($customNotFoundHandler) ) {
-                call_user_func($customNotFoundHandler);
+                try {
+                    call_user_func($customNotFoundHandler);
+                } catch ( Slim_Exception_Pass $e ) {
+                    call_user_func(array($this, 'defaultNotFound'));
+                } 
             } else {
                 call_user_func(array($this, 'defaultNotFound'));
             }
@@ -600,7 +604,12 @@ class Slim {
             $this->response->status($status);
         }
         $this->view->appendData($data);
-        $this->view->display($template);
+        $render = $this->view->render($template);
+        if ($render === FALSE) {
+            $this->pass();
+        } else {
+            echo $render;
+        }
     }
 
     /***** HTTP CACHING *****/

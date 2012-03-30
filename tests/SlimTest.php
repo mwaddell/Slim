@@ -87,7 +87,7 @@ spl_autoload_register('customAutoLoader');
 
 //Mock custom view
 class CustomView extends Slim_View {
-    function render($template) { echo "Custom view"; }
+    function render($template) { return false; }
 }
 
 //Mock custom Logger
@@ -705,6 +705,18 @@ class SlimTest extends PHPUnit_Framework_TestCase {
         $app->view('CustomView');
         $this->assertTrue($app->view() instanceof CustomView);
         $this->assertEquals($data, $app->view()->getData());
+    }
+
+    /**
+     * Test handling when custom view returns FALSE
+     */
+    public function testSlimCustomViewReturnsFalse() {
+        $this->setExpectedException('Slim_Exception_Pass');
+        $app = new Slim(array(
+            'templates.path' => dirname(__FILE__) . '/templates',
+            'view' => 'CustomView'
+        ));
+        $app->render('thisfiledoesnotexist.php');
     }
 
     /************************************************
